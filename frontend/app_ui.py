@@ -1,26 +1,19 @@
 """
 Streamlit frontend for the Investor Presentation RAG system.
 
-The API base URL is read from the environment variable API_BASE_URL so the
-same image works for both local development and production:
-
-  Local:      API_BASE_URL=http://localhost:8000  (default)
-  Production: API_BASE_URL=https://your-app.railway.app
-
-Run locally:
+Run with:
     streamlit run frontend/app_ui.py
+
+The FastAPI backend must be running on http://localhost:8000.
+Start it with:
+    uvicorn app.main:app --reload --port 8000
 """
 from __future__ import annotations
-
-import os
 
 import requests
 import streamlit as st
 
-# ---------------------------------------------------------------------------
-# Configuration — switch between local and production with one env var
-# ---------------------------------------------------------------------------
-API_BASE = os.environ.get("API_BASE_URL", "http://localhost:8000").rstrip("/")
+API_BASE = "http://localhost:8000"
 
 st.set_page_config(
     page_title="Investor Presentation RAG",
@@ -40,7 +33,9 @@ with st.sidebar:
     st.header("📥 Ingest Document")
 
     uploaded_file = st.file_uploader("Upload investor presentation PDF", type=["pdf"])
-    company_name = st.text_input("Company name (optional)", placeholder="e.g. Trent Limited")
+    company_name = st.text_input(
+        "Company name (optional)", placeholder="e.g. Trent Limited"
+    )
     force = st.checkbox(
         "Force re-ingest (clears existing data)",
         value=False,
@@ -65,9 +60,7 @@ with st.sidebar:
                 )
                 if resp.status_code == 200:
                     data = resp.json()
-                    st.success(
-                        f"✅ {data['message']}"
-                    )
+                    st.success(f"✅ {data['message']}")
                 else:
                     st.error(
                         f"Ingest failed ({resp.status_code}): "
@@ -75,8 +68,8 @@ with st.sidebar:
                     )
             except requests.exceptions.ConnectionError:
                 st.error(
-                    f"Cannot reach the API at `{API_BASE}`. "
-                    "Check that the server is running."
+                    "Cannot reach the API at localhost:8000. "
+                    "Run: uvicorn app.main:app --reload --port 8000"
                 )
 
     st.divider()
@@ -88,8 +81,6 @@ with st.sidebar:
             st.json(h)
         except Exception as exc:
             st.error(str(exc))
-
-    st.caption(f"API: `{API_BASE}`")
 
 # ---------------------------------------------------------------------------
 # Main — Query
@@ -140,6 +131,6 @@ if st.button("Ask", type="primary", disabled=not question.strip()):
 
         except requests.exceptions.ConnectionError:
             st.error(
-                f"Cannot reach the API at `{API_BASE}`. "
-                "Check that the server is running."
+                "Cannot reach the API at localhost:8000. "
+                "Run: uvicorn app.main:app --reload --port 8000"
             )
