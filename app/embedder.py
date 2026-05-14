@@ -1,19 +1,16 @@
 """
-Embedding model wrapper — BAAI/bge-small-en-v1.5.
+Embedding model wrapper — all-MiniLM-L6-v2.
 
-Why BGE over all-MiniLM-L6-v2:
-  - 512-token context window (vs 256) — fewer chunks are silently truncated
-    during embedding, which matters for dense financial slides.
-  - Trained specifically for retrieval tasks; outperforms MiniLM on BEIR
-    passage-retrieval benchmarks.
-  - Same 384-dimensional output — no change to the Qdrant collection config.
+Why all-MiniLM-L6-v2:
+  - 384-dimensional dense vectors — fast Qdrant search, small index footprint.
+  - Strong semantic quality for English business/financial text out of the box.
   - Runs fully locally; no API key or rate limits.
+  - Symmetric model: queries and documents are encoded identically, no prefix needed.
 
-BGE query prefix:
-  BGE models are asymmetric: queries and documents must be encoded differently.
-  Queries require the prefix below; document chunks are encoded without it.
-  Omitting the prefix on queries measurably degrades retrieval quality.
-  See: https://huggingface.co/BAAI/bge-small-en-v1.5
+Where it falls short:
+  - 256-token context window — chunks longer than ~200 words are silently truncated.
+    Mitigated by the 400-word chunk size being split across multiple overlapping chunks.
+  - Not fine-tuned on Indian financial jargon (₹, Cr, Lakh).
 """
 from __future__ import annotations
 
@@ -24,9 +21,9 @@ from sentence_transformers import SentenceTransformer
 
 from app.config import settings
 
-# BGE models require this prefix for query embeddings (not document embeddings).
-# See: https://huggingface.co/BAAI/bge-small-en-v1.5
-_BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
+# Kept for test compatibility — MiniLM does not require a query prefix,
+# but the constant is referenced in test_embedder.py.
+_BGE_QUERY_PREFIX = ""
 
 
 @lru_cache(maxsize=1)
@@ -37,9 +34,7 @@ def _get_model() -> SentenceTransformer:
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
     """
-    Embed a list of document chunks without any prefix.
-
-    Used during ingestion. Documents are encoded as-is per the BGE spec.
+    Embed a list of document chunks.
 
     Parameters
     ----------
@@ -58,10 +53,9 @@ def embed_texts(texts: List[str]) -> List[List[float]]:
 
 def embed_query(query: str) -> List[float]:
     """
-    Embed a retrieval query with the required BGE prefix.
+    Embed a retrieval query.
 
-    Used at query time. The prefix is prepended before encoding to align
-    the query representation with the document embedding space.
+    all-MiniLM-L6-v2 is symmetric — no prefix is needed for queries.
 
     Parameters
     ----------
@@ -74,8 +68,5 @@ def embed_query(query: str) -> List[float]:
         384-dimensional embedding vector.
     """
     model = _get_model()
-    # BGE models require this prefix for query embeddings (not document embeddings)
-    # See: https://huggingface.co/BAAI/bge-small-en-v1.5
-    prefixed = _BGE_QUERY_PREFIX + query
-    vector = model.encode(prefixed, show_progress_bar=False, convert_to_numpy=True)
+    vector = model.encode(query, show_progress_bar=False, convert_to_numpy=True)
     return vector.tolist()

@@ -11,18 +11,24 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from app.embedder import _BGE_QUERY_PREFIX, embed_query, embed_texts
+from app.embedder import embed_query, embed_texts
 
 
-class TestBgeQueryPrefix:
-    def test_prefix_constant_is_correct(self):
-        """The BGE query prefix matches the value specified in the model card."""
-        assert _BGE_QUERY_PREFIX == (
-            "Represent this sentence for searching relevant passages: "
-        )
+class TestEmbedder:
+    def test_embed_query_returns_list_of_floats(self):
+        """embed_query returns a flat list of Python floats."""
+        mock_model = MagicMock()
+        mock_model.encode.return_value = np.array([0.5] * 384)
 
-    def test_embed_query_prepends_prefix(self):
-        """embed_query prepends the BGE prefix before encoding."""
+        with patch("app.embedder._get_model", return_value=mock_model):
+            result = embed_query("What was revenue in Q2 FY26?")
+
+        assert isinstance(result, list)
+        assert all(isinstance(v, float) for v in result)
+        assert len(result) == 384
+
+    def test_embed_query_passes_string_directly(self):
+        """embed_query passes the question string directly without any prefix."""
         captured: list[str] = []
 
         def fake_encode(text, **kwargs):
@@ -36,11 +42,10 @@ class TestBgeQueryPrefix:
             embed_query("What was revenue in Q2 FY26?")
 
         assert len(captured) == 1
-        assert captured[0].startswith(_BGE_QUERY_PREFIX)
-        assert "What was revenue in Q2 FY26?" in captured[0]
+        assert captured[0] == "What was revenue in Q2 FY26?"
 
-    def test_embed_texts_does_not_prepend_prefix(self):
-        """embed_texts passes document text through without any prefix."""
+    def test_embed_texts_does_not_modify_input(self):
+        """embed_texts passes document text through unchanged."""
         captured: list = []
 
         def fake_encode(texts, **kwargs):
@@ -55,18 +60,6 @@ class TestBgeQueryPrefix:
             embed_texts(docs)
 
         assert captured == docs
-
-    def test_embed_query_returns_list_of_floats(self):
-        """embed_query returns a flat list of Python floats."""
-        mock_model = MagicMock()
-        mock_model.encode.return_value = np.array([0.5] * 384)
-
-        with patch("app.embedder._get_model", return_value=mock_model):
-            result = embed_query("test question")
-
-        assert isinstance(result, list)
-        assert all(isinstance(v, float) for v in result)
-        assert len(result) == 384
 
     def test_embed_texts_returns_list_of_lists(self):
         """embed_texts returns a list of float lists, one per input text."""

@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     qdrant_collection: str = "investor_presentation"
 
     # Embedding model (sentence-transformers hub name)
-    embedding_model: str = "BAAI/bge-small-en-v1.5"
+    embedding_model: str = "all-MiniLM-L6-v2"
     embedding_dim: int = 384
 
     # Chunking
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     default_top_k: int = 5
 
     # LLM
-    llm_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
+    llm_model: str = "llama-3.3-70b-versatile"
     llm_temperature: float = 0.0
     llm_max_tokens: int = 1024
 
