@@ -12,6 +12,7 @@ Built as a 72-hour intern evaluation assignment.
 - [Screenshots](#screenshots)
 - [Architecture](#architecture)
 - [Stack](#stack)
+- [Project Structure](#project-structure)
 - [Setup](#setup)
 - [Usage](#usage)
 - [API Reference](#api-reference)
@@ -64,6 +65,51 @@ embedder (MiniLM-L6) ──► Qdrant cosine search ──► LLM (llama-3.3-70b
 | Frontend | Streamlit |
 
 ---
+
+## Project Structure
+
+```
+app/
+  main.py
+  parser.py
+  vision_extractor.py
+  chunker.py
+  embedder.py
+  vector_store.py
+  llm.py
+  models.py
+  config.py
+frontend/
+  app_ui.py
+tests/
+  test_api.py
+  test_chunker.py
+  test_embedder.py
+  test_llm.py
+  test_parser.py
+  test_vision_extractor.py
+docs/
+  screenshots/
+README.md
+requirements.txt
+pytest.ini
+evaluation_report.md
+```
+
+- `app/main.py`: FastAPI entry point and API routes for ingest/query/health.
+- `app/parser.py`: PDF parsing and page text extraction.
+- `app/vision_extractor.py`: Vision fallback for sparse, image-heavy pages.
+- `app/chunker.py`: Chunking, KPI normalization, and metadata prep.
+- `app/embedder.py`: Embedding model loading and vector creation.
+- `app/vector_store.py`: Qdrant client setup, indexing, and retrieval.
+- `app/llm.py`: Prompting and LLM call wrapper.
+- `app/models.py`: Pydantic request/response models.
+- `app/config.py`: Environment-driven configuration.
+- `frontend/app_ui.py`: Streamlit UI.
+- `tests/`: Pytest suite for components and API endpoints.
+- `docs/screenshots/`: README screenshots.
+- `evaluation_report.md`: Evaluation questions and results.
+- `requirements.txt` / `pytest.ini`: Dependencies and test configuration.
 
 ## Setup
 
