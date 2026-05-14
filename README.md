@@ -7,6 +7,18 @@ Built as a 72-hour intern evaluation assignment.
 
 ---
 
+## Screenshots
+
+### Upload and ingest flow
+
+![Upload screen](docs/screenshots/Screenshot%202026-05-14%20at%208.28.49%E2%80%AFPM.png)
+![Ingested confirmation](docs/screenshots/Screenshot%202026-05-14%20at%208.29.13%E2%80%AFPM.png)
+
+### Q&A with citations
+
+![Answer with citations](docs/screenshots/Screenshot%202026-05-14%20at%208.29.36%E2%80%AFPM.png)
+![Citation excerpts](docs/screenshots/Screenshot%202026-05-14%20at%208.29.44%E2%80%AFPM.png)
+
 ## Architecture
 
 ```
