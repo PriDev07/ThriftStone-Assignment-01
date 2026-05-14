@@ -7,6 +7,20 @@ Built as a 72-hour intern evaluation assignment.
 
 ---
 
+## Table of Contents
+
+- [Screenshots](#screenshots)
+- [Architecture](#architecture)
+- [Stack](#stack)
+- [Setup](#setup)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Environment Variables](#environment-variables)
+- [Running Tests](#running-tests)
+- [Engineering Decisions](#engineering-decisions)
+- [Known Limitations](#known-limitations)
+- [Evaluation Report](#evaluation-report)
+
 ## Screenshots
 
 ### Upload and ingest flow
